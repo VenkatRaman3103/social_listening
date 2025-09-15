@@ -15,7 +15,8 @@ export async function GET(request: Request) {
       );
     }
 
-    const user = await db
+    const database = await db;
+    const user = await database
       .select({
         id: users.id,
         name: users.name,

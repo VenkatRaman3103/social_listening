@@ -8,8 +8,10 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, email, phone, companyName, password, plan } = body;
 
+    const database = await db;
+    
     // Check if user already exists
-    const existingUser = await db
+    const existingUser = await database
       .select()
       .from(users)
       .where(eq(users.email, email))
@@ -23,7 +25,7 @@ export async function POST(request: Request) {
     }
 
     // Create new user (password should be hashed in production)
-    const newUser = await db
+    const newUser = await database
       .insert(users)
       .values({
         name,
@@ -40,7 +42,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { 
         message: 'User created successfully', 
-        userId: newUser[0].id 
+        userId: newUser[0]?.id 
       },
       { status: 201 }
     );

@@ -8,8 +8,10 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { email, password } = body;
 
+    const database = await db;
+    
     // Find user by email
-    const user = await db
+    const user = await database
       .select()
       .from(users)
       .where(eq(users.email, email))
@@ -33,7 +35,7 @@ export async function POST(request: Request) {
     }
 
     // Get user's keywords if they exist
-    const userKeywords = await db
+    const userKeywords = await database
       .select()
       .from(keywords)
       .where(eq(keywords.userId, foundUser.id));

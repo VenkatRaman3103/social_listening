@@ -36,8 +36,10 @@ export async function POST(request: Request) {
       );
     }
 
+    const database = await db;
+    
     // Get user's current monitoring data
-    const user = await db
+    const user = await database
       .select({
         id: users.id,
         monitoringData: users.monitoringData
@@ -53,7 +55,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const currentData = user[0].monitoringData || [];
+    const currentData = user[0]?.monitoringData || [];
     let updated = false;
 
     // Check each keyword's social data status

@@ -17,7 +17,8 @@ export async function PATCH(
       );
     }
 
-    await db
+    const database = await db;
+    await database
       .update(users)
       .set({ 
         status: 'denied',

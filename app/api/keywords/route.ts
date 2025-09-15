@@ -102,7 +102,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const userPlan = user[0].plan || 'free';
+    const userPlan = user[0]?.plan || 'free';
 
     // Check current keyword count
     const currentKeywords = await database
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
       .where(eq(keywords.userId, parseInt(userId.toString())));
 
     // Check if user can add more keywords based on their plan
-    if (!canAddKeyword(currentKeywords.length, userPlan)) {
+    if (!canAddKeyword(currentKeywords?.length || 0, userPlan)) {
       const planLimits = getPlanLimits(userPlan);
       const upgradeMessage = getPlanUpgradeMessage(userPlan);
       

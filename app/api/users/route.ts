@@ -4,7 +4,8 @@ import { users } from '@/lib/db/schema';
 
 export async function GET() {
   try {
-    const allUsers = await db.select().from(users);
+    const database = await db;
+    const allUsers = await database.select().from(users);
     return NextResponse.json(allUsers);
   } catch (error) {
     console.error('Error fetching users:', error);

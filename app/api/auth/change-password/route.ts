@@ -22,8 +22,10 @@ export async function POST(request: Request) {
       );
     }
 
+    const database = await db;
+    
     // Get current user
-    const user = await db
+    const user = await database
       .select()
       .from(users)
       .where(eq(users.id, userId))
@@ -37,7 +39,7 @@ export async function POST(request: Request) {
     }
 
     // Check current password (in production, use proper password hashing)
-    if (user[0].password !== currentPassword) {
+    if (user[0]?.password !== currentPassword) {
       return NextResponse.json(
         { message: 'Current password is incorrect' },
         { status: 400 }
@@ -53,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     // Update password
-    await db
+    await database
       .update(users)
       .set({
         password: newPassword, // TODO: Hash password before storing

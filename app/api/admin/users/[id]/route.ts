@@ -17,13 +17,15 @@ export async function DELETE(
       );
     }
 
+    const database = await db;
+    
     // First delete all keywords associated with the user
-    await db
+    await database
       .delete(keywords)
       .where(eq(keywords.userId, userId));
 
     // Then delete the user
-    await db
+    await database
       .delete(users)
       .where(eq(users.id, userId));
 
@@ -54,7 +56,8 @@ export async function PATCH(
 
     const { name, email, phone, companyName, password, plan } = body;
 
-    await db
+    const database = await db;
+    await database
       .update(users)
       .set({
         name,

@@ -58,8 +58,10 @@ export async function GET(request: NextRequest) {
         break;
     }
 
+    const database = await db;
+    
     // Get articles
-    const articles = await db
+    const articles = await database
       .select()
       .from(newsArticles)
       .where(and(...whereConditions))
@@ -68,7 +70,7 @@ export async function GET(request: NextRequest) {
       .offset(offset);
 
     // Get total count
-    const totalResult = await db
+    const totalResult = await database
       .select({ count: newsArticles.id })
       .from(newsArticles)
       .where(and(...whereConditions));

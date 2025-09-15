@@ -23,14 +23,16 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    const database = await db;
+    
     // Check if email is already taken by another user
-    const existingUser = await db
+    const existingUser = await database
       .select()
       .from(users)
       .where(eq(users.email, email))
       .limit(1);
 
-    if (existingUser.length > 0 && existingUser[0].id !== id) {
+    if (existingUser.length > 0 && existingUser[0]?.id !== id) {
       return NextResponse.json(
         { message: 'Email is already taken by another user' },
         { status: 400 }
@@ -38,7 +40,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update user profile
-    const updatedUser = await db
+    const updatedUser = await database
       .update(users)
       .set({
         name,

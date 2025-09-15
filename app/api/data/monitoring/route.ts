@@ -29,8 +29,10 @@ export async function GET(request: Request) {
       );
     }
 
+    const database = await db;
+    
     // Get user's monitoring data
-    const user = await db
+    const user = await database
       .select({
         id: users.id,
         name: users.name,
@@ -51,7 +53,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       user: user[0],
-      monitoringData: user[0].monitoringData || []
+      monitoringData: user[0]?.monitoringData || []
     });
   } catch (error) {
     console.error('Error fetching monitoring data:', error);

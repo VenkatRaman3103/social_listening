@@ -30,8 +30,10 @@ export async function POST(request: Request) {
       );
     }
 
+    const database = await db;
+    
     // Get user's keywords
-    const userKeywords = await db
+    const userKeywords = await database
       .select()
       .from(keywords)
       .where(eq(keywords.userId, userId));

@@ -24,23 +24,25 @@ function getUserIdFromRequest(request: Request): number | null {
 
 async function getRelevantData(userId: number, query: string) {
   try {
+    const database = await db;
+    
     // Get user's keywords
-    const userKeywords = await db
+    const userKeywords = await database
       .select()
       .from(keywords)
       .where(eq(keywords.userId, userId));
 
-    if (userKeywords.length === 0) {
+    if (!Array.isArray(userKeywords) || userKeywords.length === 0) {
       return { keywords: [], newsArticles: [], socialPosts: [] };
     }
 
-    const keywordStrings = userKeywords.map(k => k.keyword);
+    const keywordStrings = Array.isArray(userKeywords) ? userKeywords.map(k => k.keyword) : [];
 
     // Get recent news articles (last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const recentNews = await db
+    const recentNews = await database
       .select()
       .from(newsArticles)
       .where(
@@ -53,7 +55,7 @@ async function getRelevantData(userId: number, query: string) {
       .limit(50);
 
     // Get recent social posts (last 30 days)
-    const recentSocial = await db
+    const recentSocial = await database
       .select()
       .from(socialPosts)
       .where(
@@ -66,7 +68,7 @@ async function getRelevantData(userId: number, query: string) {
       .limit(50);
 
     // Get user's monitoring data
-    const user = await db
+    const user = await database
       .select()
       .from(users)
       .where(eq(users.id, userId))
@@ -79,7 +81,7 @@ async function getRelevantData(userId: number, query: string) {
       newsArticles: recentNews,
       socialPosts: recentSocial,
       monitoringData,
-      user: user[0]
+      user: user[0] || null
     };
   } catch (error) {
     console.error('Error fetching relevant data:', error);
@@ -91,9 +93,9 @@ function formatDataForPrompt(data: any) {
   const { keywords, newsArticles, socialPosts, monitoringData, user } = data;
   
   let context = `User: ${user?.name || 'Unknown'}\n`;
-  context += `Keywords being monitored: ${keywords.join(', ')}\n\n`;
+  context += `Keywords being monitored: ${Array.isArray(keywords) ? keywords.join(', ') : 'None'}\n\n`;
   
-  if (newsArticles.length > 0) {
+  if (Array.isArray(newsArticles) && newsArticles.length > 0) {
     context += `Recent News Articles (${newsArticles.length} articles):\n`;
     newsArticles.slice(0, 10).forEach((article: any, index: number) => {
       context += `${index + 1}. ${article.title}\n`;
@@ -107,7 +109,7 @@ function formatDataForPrompt(data: any) {
     });
   }
 
-  if (socialPosts.length > 0) {
+  if (Array.isArray(socialPosts) && socialPosts.length > 0) {
     context += `Recent Social Media Posts (${socialPosts.length} posts):\n`;
     socialPosts.slice(0, 10).forEach((post: any, index: number) => {
       context += `${index + 1}. ${post.title || 'Social Post'}\n`;
@@ -121,15 +123,15 @@ function formatDataForPrompt(data: any) {
     });
   }
 
-  if (monitoringData && monitoringData.length > 0) {
+  if (Array.isArray(monitoringData) && monitoringData.length > 0) {
     context += `Monitoring Data Summary:\n`;
     monitoringData.forEach((data: any, index: number) => {
       context += `Keyword: ${data.keyword}\n`;
       if (data.newsData?.results) {
-        context += `  - News articles found: ${data.newsData.results.length}\n`;
+        context += `  - News articles found: ${data.newsData.results?.length || 0}\n`;
       }
       if (data.socialData?.data) {
-        context += `  - Social posts found: ${data.socialData.data.length}\n`;
+        context += `  - Social posts found: ${data.socialData.data?.length || 0}\n`;
       }
       context += `  - Last updated: ${data.timestamp}\n\n`;
     });
@@ -217,7 +219,7 @@ Respond in a conversational, helpful tone. Use rich markdown formatting to creat
 
     // Prepare conversation history for context
     let conversationContext = '';
-    if (conversationHistory.length > 0) {
+    if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
       conversationContext = '\n\nPrevious conversation:\n';
       conversationHistory.forEach((msg: any) => {
         conversationContext += `${msg.role}: ${msg.content}\n`;
@@ -288,16 +290,16 @@ Respond in a conversational, helpful tone. Use rich markdown formatting to creat
       );
     }
 
-    const aiResponse = geminiData.candidates[0].content.parts[0].text;
+    const aiResponse = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
 
     return NextResponse.json({
       response: aiResponse,
       timestamp: new Date().toISOString(),
       dataContext: {
-        keywordsCount: relevantData.keywords.length,
-        newsArticlesCount: relevantData.newsArticles.length,
-        socialPostsCount: relevantData.socialPosts.length,
-        monitoringDataCount: relevantData.monitoringData.length
+        keywordsCount: Array.isArray(relevantData.keywords) ? relevantData.keywords.length : 0,
+        newsArticlesCount: Array.isArray(relevantData.newsArticles) ? relevantData.newsArticles.length : 0,
+        socialPostsCount: Array.isArray(relevantData.socialPosts) ? relevantData.socialPosts.length : 0,
+        monitoringDataCount: Array.isArray(relevantData.monitoringData) ? relevantData.monitoringData.length : 0
       }
     });
 
