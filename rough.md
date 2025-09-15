@@ -1,0 +1,7 @@
+- npm
+- yt
+- export
+- persistant chat history
+- cron job
+- social listening - rm
+- mentions - search - rm
