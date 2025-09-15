@@ -18,9 +18,9 @@ import {
   Info,
   Mail
 } from "lucide-react";
-import { HeroParallax, HeroParallaxContent } from "@/components/ui/hero-parallax";
-import { FloatingNav } from "@/components/ui/floating-nav";
-import { FloatingNavbar } from "@/components/ui/floating-navbar";
+import { HeroParallax, Header as HeroParallaxContent } from "@/components/ui/hero-parallax";
+import { FloatingNavDemo as FloatingNav } from "@/components/ui/floating-nav";
+import { FloatingNav as FloatingNavbar } from "@/components/ui/floating-navbar";
 import "./landing-styles.css";
 
 const features = [

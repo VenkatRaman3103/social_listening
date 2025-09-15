@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from 'drizzle-orm';
-import { getDatabase, isDatabaseHealthy } from '@/lib/db';
+import { getDatabase, isDatabaseHealthy } from '@/lib/db/connection';
 
 export async function GET() {
   try {
